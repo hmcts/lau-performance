@@ -1,5 +1,5 @@
 plugins {
-    id 'org.owasp.dependencycheck' version '9.0.5'
+    id 'org.owasp.dependencycheck' version '10.0.3'
     id 'scala'
     id 'java-library'
     id 'io.gatling.gradle' version '3.9.5'
