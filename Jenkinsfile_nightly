@@ -15,7 +15,7 @@ def component = "frontend"
 
 withNightlyPipeline("java", product, component) {
 
-    enablePerformanceTest()
+    enablePerformanceTest(timeout=30, perfGatlingAlerts=true, perfRerunOnFail=true)
 
     after('performanceTest') {
         steps.archiveArtifacts allowEmptyArchive: true, artifacts: 'functional-output/**/*'
