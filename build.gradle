@@ -1,14 +1,23 @@
 plugins {
-    id 'org.owasp.dependencycheck' version '9.0.5'
+    id 'org.owasp.dependencycheck' version '12.1.1'
     id 'scala'
     id 'java-library'
-    id 'io.gatling.gradle' version '3.9.5'
+    id 'io.gatling.gradle' version '3.14.9'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+dependencies {
+    gatlingImplementation project(':common-performance')
+}
+
+dependencyCheck {
+    suppressionFile = "common/common-performance/owasp/owasp-suppressions.xml"
+    analyzers.assemblyEnabled = false
 }
 
 tasks.withType(JavaExec) {
@@ -31,11 +40,8 @@ repositories {
 }
 
 gatling {
-    gatlingVersion '3.9.5'
-    scalaVersion '2.13.10'
-    simulations = {
-        include "uk/gov/hmcts/reform/LandA/performance/simulations/mainSimulation.scala"
-    }
+    gatlingVersion '3.14.9'
+    scalaVersion '2.13.11'
 }
 
 sourceSets {
@@ -49,3 +55,55 @@ sourceSets {
     }
 }
 
+tasks.register("runSimulation", JavaExec) {
+    group = "Gatling Test"
+    description = "Runs a specified Gatling simulation without interactive mode"
+
+    classpath = sourceSets.gatling.runtimeClasspath
+    mainClass.set("io.gatling.app.Gatling")
+
+    // Add simulation class and results directory
+    args += [
+            "-s", "uk.gov.hmcts.reform.LandA.performance.simulations.mainSimulation",
+            "-rf", layout.buildDirectory.get().asFile.toString() + "/reports/gatling"
+    ]
+
+    // JVM args required for Java 21
+    jvmArgs += ["--add-opens=java.base/java.lang=ALL-UNNAMED"]
+
+    // Pass through all -D properties from command line
+    jvmArgs += System.properties.findAll { key, _ ->
+        key instanceof String && key.startsWith("-D") == false && key != "java.class.path"
+    }.collect { key, value ->
+        "-D${key}=${value}"
+    }
+}
+
+// Override gatlingRun task
+tasks.named("gatlingRun") {
+    dependsOn("runSimulation")
+    enabled = false
+}
+
+configurations {
+    gatlingImplementation.extendsFrom implementation
+    gatlingRuntimeOnly.extendsFrom runtimeOnly
+}
+
+/* Generate stats per transaction for use in Jenkins*/
+ext {
+    transactionNamesToGraph = [""]
+}
+
+tasks.register('generateStats', JavaExec) {
+    dependsOn tasks.named('gatlingRun')
+    dependsOn tasks.named('compileGatlingScala')
+    mainClass.set('stats.GenerateStatsByTxn')
+    args = transactionNamesToGraph
+    classpath = sourceSets.gatling.runtimeClasspath + project(":common-performance").sourceSets.main.runtimeClasspath
+}
+
+// Ensure it runs after Gatling
+tasks.named('gatlingRun') {
+    finalizedBy tasks.named('generateStats')
+}
