@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.LandA.performance.scenarios
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import utils.{CommonHeader, Environment}
+import utils.{CommonHeader, Environment, LoginFlow}
 
 object LAUScenario {
 
@@ -25,7 +25,7 @@ object LAUScenario {
       exec(http("LAU Homepage")
         .get(BaseURL)
         .headers(CommonHeader.homepage_header)
-        .check(substring("Sign in"))
+        .check(css("input[name='email']", "name").is("email"))
         .check(css("input[name='_csrf']", "value").saveAs("csrfToken")))
     }
       .pause(ThinkTime)
@@ -36,18 +36,8 @@ object LAUScenario {
       "perftest" -> feed(Users),
       "aat" -> feed(UsersAat)
     )
-      .group("LAU_030_Login") {
-        exec(http("LAU Login")
-          .post(IdamURL + "/login?client_id=lau&response_type=code&redirect_uri=" + BaseURL + "/oauth2/callback")
-          .headers(CommonHeader.navigation_headers)
-          .formParam("username", "#{email}")
-          .formParam("password", "#{password}")
-          .formParam("save", "Sign in")
-          .formParam("selfRegistrationEnabled", "false")
-          .formParam("_csrf", "#{csrfToken}")
-          .check(substring("Case audit")))
-      }
-      .pause(ThinkTime)
+    .exec(LoginFlow.login("LAU_030_Login", "Case audit"))
+
 
   val RetrieveCsrfToken =
 
@@ -172,5 +162,3 @@ object LAUScenario {
       }
 
 }
-
-
