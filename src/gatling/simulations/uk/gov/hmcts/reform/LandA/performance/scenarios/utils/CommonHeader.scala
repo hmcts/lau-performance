@@ -4,7 +4,7 @@ object CommonHeader {
 
   val homepage_header = Map(
     "accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    "accept-encoding" -> "gzip, deflate, br",
+    "accept-encoding" -> "gzip, deflate, br, zstd",
     "accept-language" -> "en-GB,en;q=0.9",
     "sec-fetch-dest" -> "document",
     "sec-fetch-mode" -> "navigate",
@@ -14,7 +14,7 @@ object CommonHeader {
 
   val navigation_headers = Map(
     "accept" -> "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    "accept-encoding" -> "gzip, deflate, br",
+    "accept-encoding" -> "gzip, deflate, br, zstd",
     "accept-language" -> "en-GB,en;q=0.9",
     "content-type" -> "application/x-www-form-urlencoded",
     "sec-fetch-dest" -> "document",
@@ -25,7 +25,7 @@ object CommonHeader {
 
   val download_headers = Map(
     "accept" -> "*/*",
-    "accept-encoding" -> "gzip, deflate, br",
+    "accept-encoding" -> "gzip, deflate, br, zstd",
     "accept-language" -> "en-GB,en;q=0.9",
     "sec-fetch-dest" -> "empty",
     "sec-fetch-mode" -> "cors",

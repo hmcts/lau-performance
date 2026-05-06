@@ -25,7 +25,7 @@ object LAUScenario {
       exec(http("LAU Homepage")
         .get(BaseURL)
         .headers(CommonHeader.homepage_header)
-        .check(substring("Sign in"))
+        .check(substring("Enter your email address"))
         .check(css("input[name='_csrf']", "value").saveAs("csrfToken")))
     }
       .pause(ThinkTime)
@@ -36,14 +36,22 @@ object LAUScenario {
       "perftest" -> feed(Users),
       "aat" -> feed(UsersAat)
     )
-      .group("LAU_030_Login") {
-        exec(http("LAU Login")
-          .post(IdamURL + "/login?client_id=lau&response_type=code&redirect_uri=" + BaseURL + "/oauth2/callback")
+      .group("LAU_030_Login_Email") {
+        exec(http("LAU Login_Email")
+          .post(IdamURL + "/enter-email")
           .headers(CommonHeader.navigation_headers)
-          .formParam("username", "#{email}")
+          .formParam("email", "#{email}")
+          .formParam("_csrf", "#{csrfToken}")
+          .check(substring("Enter your password")))
+      }
+      .pause(ThinkTime)
+
+      .group("LAU_035_Login_Password") {
+        exec(http("LAU Login_Password")
+          .post(IdamURL + "/enter-password")
+          .headers(CommonHeader.navigation_headers)
+          .formParam("action", "_submit")
           .formParam("password", "#{password}")
-          .formParam("save", "Sign in")
-          .formParam("selfRegistrationEnabled", "false")
           .formParam("_csrf", "#{csrfToken}")
           .check(substring("Case audit")))
       }
