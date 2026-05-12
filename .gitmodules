@@ -1,3 +1,4 @@
 [submodule "common/common-performance"]
 	path = common/common-performance
 	url = https://github.com/hmcts/common-performance.git
+    branch = master
