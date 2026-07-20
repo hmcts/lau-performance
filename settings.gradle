@@ -1,3 +1,7 @@
+pluginManagement {
+    includeBuild('common/common-performance/build-logic')
+}
+
 rootProject.name = 'lau-performance'
 
 include ':common-performance'
