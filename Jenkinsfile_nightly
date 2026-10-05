@@ -7,7 +7,7 @@ properties([
     ])
 ])
 
-@Library("Infrastructure@2.11.0") _
+@Library("Infrastructure@2.11.2") _
 
 def product = "lau"
 def component = "frontend"
